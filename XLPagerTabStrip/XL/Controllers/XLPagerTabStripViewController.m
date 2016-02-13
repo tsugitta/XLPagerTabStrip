@@ -80,6 +80,7 @@ static NSString * const kUserDefaiultKeyXLPagerTabStrip = @"XLPagerTabStrip";
     _isElasticIndicatorLimit = NO;
     _skipIntermediateViewControllers = YES;
     _isProgressiveIndicator = NO;
+    _firstlyMoveToLastSeenTab = NO;
 }
 
 - (void)viewDidLoad
