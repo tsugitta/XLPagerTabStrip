@@ -331,6 +331,8 @@
     NSInteger virtualPage = [self virtualPageForContentOffset:self.containerView.contentOffset.x];
     NSUInteger newCurrentIndex = [self pageForVirtualPage:virtualPage];
     self.currentIndex = newCurrentIndex;
+    [self saveIndexOfLastSeenTab:newCurrentIndex];
+    
     BOOL changeCurrentIndex = newCurrentIndex != oldCurrentIndex;
     
     if (self.isProgressiveIndicator){
@@ -381,6 +383,12 @@
     }
 }
 
+-(void)saveIndexOfLastSeenTab:(NSUInteger)indexOfLastSeenTab
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [ud setInteger:indexOfLastSeenTab forKey:kUserDefaiultKeyXLPagerTabStrip];
+    [ud synchronize];
+}
 
 -(void)reloadPagerTabStripView
 {
