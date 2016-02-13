@@ -112,7 +112,7 @@ static NSString * const kUserDefaiultKeyXLPagerTabStrip = @"XLPagerTabStrip";
 {
     [super viewWillAppear:animated];
     
-    if (self.firstlyMoveToLastSeenTab) {
+    if (self.firstlyMoveToLastSeenTab && [self canMoveToIndex:self.indexOfLastSeenTab]) {
         [self moveToViewControllerAtIndex:self.indexOfLastSeenTab animated:NO];
     }
 }
