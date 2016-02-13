@@ -113,9 +113,12 @@ static NSString * const kUserDefaiultKeyXLPagerTabStrip = @"XLPagerTabStrip";
 {
     [super viewWillAppear:animated];
     
-    if (self.firstlyMoveToLastSeenTab && [self canMoveToIndex:self.indexOfLastSeenTab]) {
-        [self moveToViewControllerAtIndex:self.indexOfLastSeenTab animated:NO];
-    }
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        if (self.firstlyMoveToLastSeenTab && [self canMoveToIndex:self.indexOfLastSeenTab]) {
+            [self moveToViewControllerAtIndex:self.indexOfLastSeenTab animated:NO];
+        }
+    });
 }
 
 -(void)viewDidAppear:(BOOL)animated
