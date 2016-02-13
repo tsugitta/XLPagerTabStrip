@@ -83,6 +83,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.indexOfLastSeenTab = [self loadIndexOfLastSeenTab];
+    
     if (!self.containerView){
         self.containerView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.bounds), CGRectGetHeight(self.view.bounds))];
         self.containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -381,6 +384,13 @@
                                                toIndex:newCurrentIndex];
         }
     }
+}
+
+-(NSUInteger)loadIndexOfLastSeenTab
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSUInteger loadedIndex = [ud integerForKey:kUserDefaiultKeyXLPagerTabStrip];
+    return loadedIndex;
 }
 
 -(void)saveIndexOfLastSeenTab:(NSUInteger)indexOfLastSeenTab
