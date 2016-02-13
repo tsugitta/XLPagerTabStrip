@@ -25,6 +25,8 @@
 
 #import "XLPagerTabStripViewController.h"
 
+static NSString * const kUserDefaiultKeyXLPagerTabStrip = @"XLPagerTabStrip";
+
 @interface XLPagerTabStripViewController ()
 
 @property (nonatomic) NSUInteger currentIndex;
@@ -109,6 +111,10 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    if (self.firstlyMoveToLastSeenTab) {
+        [self moveToViewControllerAtIndex:self.indexOfLastSeenTab animated:NO];
+    }
 }
 
 -(void)viewDidAppear:(BOOL)animated
