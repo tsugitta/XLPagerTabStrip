@@ -92,6 +92,8 @@ typedef NS_ENUM(NSUInteger, XLPagerTabStripDirection) {
 @property BOOL skipIntermediateViewControllers;
 @property BOOL isProgressiveIndicator;
 @property BOOL isElasticIndicatorLimit;
+@property BOOL firstlyMoveToLastSeenTab;
+@property NSUInteger indexOfLastSeenTab;
 
 -(void)moveToViewControllerAtIndex:(NSUInteger)index;
 -(void)moveToViewControllerAtIndex:(NSUInteger)index animated:(BOOL)animated;

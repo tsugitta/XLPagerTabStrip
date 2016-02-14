@@ -25,6 +25,8 @@
 
 #import "XLPagerTabStripViewController.h"
 
+static NSString * const kUserDefaiultKeyXLPagerTabStrip = @"XLPagerTabStrip";
+
 @interface XLPagerTabStripViewController ()
 
 @property (nonatomic) NSUInteger currentIndex;
@@ -78,11 +80,15 @@
     _isElasticIndicatorLimit = NO;
     _skipIntermediateViewControllers = YES;
     _isProgressiveIndicator = NO;
+    _firstlyMoveToLastSeenTab = NO;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.indexOfLastSeenTab = [self loadIndexOfLastSeenTab];
+    
     if (!self.containerView){
         self.containerView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.bounds), CGRectGetHeight(self.view.bounds))];
         self.containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -106,6 +112,13 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        if (self.firstlyMoveToLastSeenTab && [self canMoveToIndex:self.indexOfLastSeenTab]) {
+            [self moveToViewControllerAtIndex:self.indexOfLastSeenTab animated:NO];
+        }
+    });
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -331,6 +344,8 @@
     NSInteger virtualPage = [self virtualPageForContentOffset:self.containerView.contentOffset.x];
     NSUInteger newCurrentIndex = [self pageForVirtualPage:virtualPage];
     self.currentIndex = newCurrentIndex;
+    [self saveIndexOfLastSeenTab:newCurrentIndex];
+    
     BOOL changeCurrentIndex = newCurrentIndex != oldCurrentIndex;
     
     if (self.isProgressiveIndicator){
@@ -381,6 +396,19 @@
     }
 }
 
+-(NSUInteger)loadIndexOfLastSeenTab
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSUInteger loadedIndex = [ud integerForKey:kUserDefaiultKeyXLPagerTabStrip];
+    return loadedIndex;
+}
+
+-(void)saveIndexOfLastSeenTab:(NSUInteger)indexOfLastSeenTab
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [ud setInteger:indexOfLastSeenTab forKey:kUserDefaiultKeyXLPagerTabStrip];
+    [ud synchronize];
+}
 
 -(void)reloadPagerTabStripView
 {
