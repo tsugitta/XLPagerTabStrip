@@ -68,7 +68,7 @@ public class ButtonBarView: UICollectionView {
         updateSelectedBarPosition(animated, swipeDirection: swipeDirection, pagerScroll: pagerScroll)
     }
     
-    public func moveFromIndex(fromIndex: Int, toIndex: Int, progressPercentage: CGFloat,pagerScroll: PagerScroll) {
+    public func moveFromIndex(fromIndex: Int, toIndex: Int, progressPercentage: CGFloat, pagerScroll: PagerScroll, scrollToSelectedButton: Bool) {
         selectedIndex = progressPercentage > 0.5 ? toIndex : fromIndex
         
         let fromFrame = layoutAttributesForItemAtIndexPath(NSIndexPath(forItem: fromIndex, inSection: 0))!.frame
@@ -106,7 +106,10 @@ public class ButtonBarView: UICollectionView {
         }
         
         let animated = abs(contentOffset.x - targetContentOffset) > 30 || (fromIndex == toIndex)
-        setContentOffset(CGPointMake(targetContentOffset, 0), animated: animated)
+
+        if scrollToSelectedButton {
+            setContentOffset(CGPointMake(targetContentOffset, 0), animated: animated)
+        }
     }
     
     public func updateSelectedBarPosition(animated: Bool, swipeDirection: SwipeDirection, pagerScroll: PagerScroll) -> Void {
