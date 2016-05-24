@@ -88,6 +88,15 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
         }
     }
 
+    public override func saveIndexOfLastSeenTab() {
+        let tmp = self.indexAheadForLoop
+        self.indexAheadForLoop = 0
+
+        super.saveIndexOfLastSeenTab()
+
+        self.indexAheadForLoop = tmp
+    }
+
     // MARK: - Private Methods
 
     private func shiftButtonsIndex() {
