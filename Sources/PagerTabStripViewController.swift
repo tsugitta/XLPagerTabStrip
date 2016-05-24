@@ -91,6 +91,9 @@ public class PagerTabStripViewController: UIViewController, UIScrollViewDelegate
     
     override public func viewDidLoad() {
         super.viewDidLoad()
+
+        loadIndexOfLastSeenTab()
+
         if containerView.superview == nil {
             view.addSubview(containerView)
         }
@@ -108,6 +111,8 @@ public class PagerTabStripViewController: UIViewController, UIScrollViewDelegate
     public override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         isViewAppearing = true
+
+        moveToLastSeenTabAtFirstAppearing?()
     }
     
     override public func viewDidAppear(animated: Bool) {
@@ -244,6 +249,7 @@ public class PagerTabStripViewController: UIViewController, UIScrollViewDelegate
         let virtualPage = virtualPageForContentOffset(containerView.contentOffset.x)
         let newCurrentIndex = pageForVirtualPage(virtualPage)
         currentIndex = newCurrentIndex
+        saveIndexOfLastSeenTab()
         let changeCurrentIndex = newCurrentIndex != oldCurrentIndex
         
         if let progressiveDeledate = self as? PagerTabStripIsProgressiveDelegate where pagerBehaviour.isProgressiveIndicator {
@@ -312,6 +318,19 @@ public class PagerTabStripViewController: UIViewController, UIScrollViewDelegate
     }
     
     
+
+    public func saveIndexOfLastSeenTab() {
+        let ud = NSUserDefaults.standardUserDefaults()
+        ud.setInteger(currentIndex, forKey: PagerTabStripViewController.userDefaultsKeyXLPagerTabStrip)
+        ud.synchronize()
+    }
+
+    public func loadIndexOfLastSeenTab() {
+        let ud = NSUserDefaults.standardUserDefaults()
+        let loadedIndex = ud.integerForKey(PagerTabStripViewController.userDefaultsKeyXLPagerTabStrip)
+        indexOfLastSeenTab = loadedIndex
+    }
+
     //MARK: Private
     
     private func progressiveIndicatorData(virtualPage: Int) -> (Int, Int, CGFloat) {
@@ -373,4 +392,16 @@ public class PagerTabStripViewController: UIViewController, UIScrollViewDelegate
     internal var isViewRotating = false
     internal var isViewAppearing = false
     
+    public var firstlyMoveToLastSeenTab = false
+    private var indexOfLastSeenTab = 0
+    private static let userDefaultsKeyXLPagerTabStrip = "XLPagerTabStrip"
+
+    lazy private var moveToLastSeenTabAtFirstAppearing: (()->())? = {
+        if self.firstlyMoveToLastSeenTab && self.canMoveToIndex(index: self.indexOfLastSeenTab) {
+            self.moveToViewControllerAtIndex(self.indexOfLastSeenTab)
+        }
+
+        self.moveToLastSeenTabAtFirstAppearing = nil
+    }
+
 }
