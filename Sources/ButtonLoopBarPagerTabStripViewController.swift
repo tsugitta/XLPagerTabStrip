@@ -8,15 +8,15 @@
 
 import UIKit
 
-public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripViewController {
+open class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripViewController {
 
-    public var indexAheadForLoop = 0
+    open var indexAheadForLoop = 0
 
-    public override var viewControllers: [UIViewController] {
+    open override var viewControllers: [UIViewController] {
         return rotatedArray(super.viewControllers, rotation: indexAheadForLoop)
     }
 
-    public override var currentIndex: Int {
+    open override var currentIndex: Int {
         return (super.currentIndex - indexAheadForLoop + viewControllers.count) % viewControllers.count
     }
 
@@ -25,7 +25,7 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
         return rotatedArray(widths, rotation: indexAheadForLoop)
     }
 
-    public override func viewDidLayoutSubviews() {
+    open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         if !scrollingBySelectingButton {
@@ -35,15 +35,15 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
 
     // MARK: - UICollectionViewDelegate
 
-    public override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    open override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         scrollingBySelectingButton = true
 
-        super.collectionView(collectionView, didSelectItemAtIndexPath:indexPath)
+        super.collectionView(collectionView, didSelectItemAt:indexPath)
     }
 
     // MARK: - UIScrollViewDelegate
 
-    public override func scrollViewDidScroll(scrollView: UIScrollView) {
+    open override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         super.scrollViewDidScroll(scrollView)
 
         if scrollView == buttonBarView && !scrollingBySelectingButton {
@@ -52,7 +52,7 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
         }
     }
 
-    public override func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
+    open override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         super.scrollViewDidEndScrollingAnimation(scrollView)
 
         guard scrollView == containerView else { return }
@@ -63,11 +63,11 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
 
     // MARK: - Public Methods
 
-    public override func pageForVirtualPage(virtualPage: Int) -> Int {
+    open override func pageForVirtualPage(_ virtualPage: Int) -> Int {
         return virtualPage + indexAheadForLoop
     }
 
-    public override func calculateWidths() -> [CGFloat] {
+    open override func calculateWidths() -> [CGFloat] {
         let tmp = self.indexAheadForLoop
         self.indexAheadForLoop = 0
 
@@ -77,18 +77,18 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
         return widths
     }
 
-    public override func pagerTabStripViewController(pagerTabStripViewController: PagerTabStripViewController, updateIndicatorFromIndex fromIndex: Int, toIndex: Int, withProgressPercentage progressPercentage: CGFloat, indexWasChanged: Bool) {
+    open override func pagerTabStripViewController(_ pagerTabStripViewController: PagerTabStripViewController, updateIndicatorFromIndex fromIndex: Int, toIndex: Int, withProgressPercentage progressPercentage: CGFloat, indexWasChanged: Bool) {
         guard shouldUpdateButtonBarView else { return }
-        buttonBarView.moveFromIndex(fromIndex, toIndex: toIndex, progressPercentage: progressPercentage, pagerScroll: .Yes, scrollToSelectedButton: scrollToSelectedButton)
+        buttonBarView.moveFromIndex(fromIndex, toIndex: toIndex, progressPercentage: progressPercentage, pagerScroll: .yes, scrollToSelectedButton: scrollToSelectedButton)
         scrollToSelectedButton = true
         if let changeCurrentIndexProgressive = changeCurrentIndexProgressive {
-            let oldCell = buttonBarView.cellForItemAtIndexPath(NSIndexPath(forItem: currentIndex != fromIndex ? fromIndex : toIndex, inSection: 0)) as? ButtonBarViewCell
-            let newCell = buttonBarView.cellForItemAtIndexPath(NSIndexPath(forItem: currentIndex, inSection: 0)) as? ButtonBarViewCell
-            changeCurrentIndexProgressive(oldCell: oldCell, newCell: newCell, progressPercentage: progressPercentage, changeCurrentIndex: indexWasChanged, animated: true)
+            let oldCell = buttonBarView.cellForItem(at: IndexPath(item: currentIndex != fromIndex ? fromIndex : toIndex, section: 0)) as? ButtonBarViewCell
+            let newCell = buttonBarView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? ButtonBarViewCell
+            changeCurrentIndexProgressive(oldCell, newCell, progressPercentage, indexWasChanged, true)
         }
     }
 
-    public override func saveIndexOfLastSeenTab() {
+    open override func saveIndexOfLastSeenTab() {
         let tmp = self.indexAheadForLoop
         self.indexAheadForLoop = 0
 
@@ -99,11 +99,11 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
 
     // MARK: - Private Methods
 
-    private func shiftButtonsIndex() {
-        let visibleIndexs = buttonBarView.indexPathsForVisibleItems().map { $0.item }
+    fileprivate func shiftButtonsIndex() {
+        let visibleIndexs = buttonBarView.indexPathsForVisibleItems.map { ($0 as NSIndexPath).item }
         guard visibleIndexs.count != 0 else { return }
-        var leftIndex = visibleIndexs.minElement()!
-        var rightIndex = visibleIndexs.maxElement()!
+        let leftIndex = visibleIndexs.min()!
+        let rightIndex = visibleIndexs.max()!
 
         var shiftIndex = 0
 
@@ -117,25 +117,25 @@ public class ButtonLoopBarPagerTabStripViewController: ButtonBarPagerTabStripVie
 
         indexAheadForLoop = (indexAheadForLoop + shiftIndex + viewControllers.count) % viewControllers.count
 
-        let buttonBarContentWidth = cachedCellWidths![0...viewControllers.count-1].reduce(0, combine: +)
-        var buttonBarShiftWidth: CGFloat = shiftIndex == 1 ? -cachedCellWidths!.last! : cachedCellWidths!.first!
+        let buttonBarContentWidth = cachedCellWidths![0...viewControllers.count-1].reduce(0, +)
+        let buttonBarShiftWidth: CGFloat = shiftIndex == 1 ? -cachedCellWidths!.last! : cachedCellWidths!.first!
 
-        buttonBarView.bounds.origin.x = (buttonBarView.bounds.origin.x + buttonBarShiftWidth + buttonBarContentWidth) % buttonBarContentWidth
+        buttonBarView.bounds.origin.x = (buttonBarView.bounds.origin.x + buttonBarShiftWidth + buttonBarContentWidth).truncatingRemainder(dividingBy: buttonBarContentWidth)
         buttonBarView.reloadData()
 
         let containerViewContentWidth = containerView.contentSize.width
-        var containerViewShiftWidth = -CGFloat(shiftIndex) * pageWidth
+        let containerViewShiftWidth = -CGFloat(shiftIndex) * pageWidth
 
-        containerView.bounds.origin.x = (containerView.bounds.origin.x + containerViewShiftWidth + containerViewContentWidth) % containerViewContentWidth
+        containerView.bounds.origin.x = (containerView.bounds.origin.x + containerViewShiftWidth + containerViewContentWidth).truncatingRemainder(dividingBy: containerViewContentWidth)
         updateContent()
     }
 
-    private func rotatedArray<T>(array: [T], rotation: Int) -> [T] {
+    fileprivate func rotatedArray<T>(_ array: [T], rotation: Int) -> [T] {
         guard rotation > 0 else { return array }
         return Array(array[rotation...array.count-1] + array[0...rotation-1])
     }
 
-    private var scrollToSelectedButton = true
-    private var scrollingBySelectingButton = false
+    fileprivate var scrollToSelectedButton = true
+    fileprivate var scrollingBySelectingButton = false
 
 }
